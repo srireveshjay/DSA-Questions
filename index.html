@@ -1,32 +1,785 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>My DSA Tracker</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="description" content="A curated tracker for Data Structures and Algorithms questions.">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSA Question Bank</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── TOKENS ───────────────────────────────────────────── */
+    :root {
+      --bg:        #0d1117;
+      --bg2:       #161b22;
+      --bg3:       #21262d;
+      --border:    #30363d;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --accent:    #58a6ff;
+      --green:     #3fb950;
+      --orange:    #d29922;
+      --purple:    #bc8cff;
+      --red:       #f85149;
+      --cyan:      #79c0ff;
+      --mono:      'JetBrains Mono', monospace;
+      --sans:      'Inter', sans-serif;
+      --radius:    8px;
+      --sidebar-w: 260px;
+    }
+
+    /* ── RESET ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── TOP NAV ──────────────────────────────────────────── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,17,23,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 56px;
+    }
+    .topbar-logo {
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .topbar-logo span.cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: var(--accent);
+      animation: blink 1.1s steps(1) infinite;
+      vertical-align: middle;
+    }
+    @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+
+    .topbar-badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .topbar-spacer { flex: 1; }
+    .topbar-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--muted);
+      cursor: text;
+      min-width: 200px;
+    }
+    .topbar-search input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      width: 100%;
+    }
+    .topbar-search input::placeholder { color: var(--muted); }
+
+    /* ── LAYOUT ───────────────────────────────────────────── */
+    .layout {
+      display: flex;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      gap: 32px;
+      align-items: flex-start;
+    }
+
+    /* ── SIDEBAR ──────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      position: sticky;
+      top: 72px;
+      max-height: calc(100vh - 88px);
+      overflow-y: auto;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .sidebar-section { margin-bottom: 8px; }
+    .sidebar-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      padding: 12px 12px 6px;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 12px;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 13.5px;
+      transition: background .15s, color .15s;
+      gap: 8px;
+    }
+    .sidebar-link:hover, .sidebar-link.active {
+      background: var(--bg3);
+      color: var(--text);
+      text-decoration: none;
+    }
+    .sidebar-link .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .sidebar-link .count {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 10px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+    .sidebar-link:hover .count, .sidebar-link.active .count {
+      background: var(--bg);
+    }
+
+    .sidebar-stats {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin: 16px 0 0;
+      background: var(--bg2);
+    }
+    .sidebar-stats h4 {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 3px 0;
+    }
+    .stat-row .label { color: var(--muted); }
+    .stat-row .val { font-family: var(--mono); font-weight: 600; }
+    .stat-row .val.easy { color: var(--green); }
+    .stat-row .val.medium { color: var(--orange); }
+    .stat-row .val.hard { color: var(--red); }
+    .stat-row .val.total { color: var(--accent); }
+
+    /* ── MAIN ─────────────────────────────────────────────── */
+    .main { flex: 1; min-width: 0; }
+
+    /* Hero */
+    .hero {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg2);
+      padding: 32px 28px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top left, rgba(88,166,255,.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 10px;
+      letter-spacing: .05em;
+    }
+    .hero h1 {
+      font-family: var(--mono);
+      font-size: clamp(22px, 3vw, 32px);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 14.5px;
+      max-width: 560px;
+    }
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .chip {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    /* Section blocks */
+    .section-block {
+      margin-bottom: 36px;
+      scroll-margin-top: 72px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-family: var(--mono);
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .section-count {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: auto;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* Question table */
+    .q-table {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--bg2);
+    }
+    .q-row {
+      display: grid;
+      grid-template-columns: 48px 1fr 90px 90px;
+      align-items: center;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+      gap: 12px;
+    }
+    .q-row:last-child { border-bottom: none; }
+    .q-row:hover { background: var(--bg3); }
+    .q-row.header {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      background: var(--bg3);
+      padding: 8px 16px;
+    }
+    .q-num {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--muted);
+      text-align: right;
+    }
+    .q-name {
+      font-size: 14px;
+      color: var(--text);
+    }
+    .q-name a {
+      color: var(--text);
+      transition: color .12s;
+    }
+    .q-name a:hover { color: var(--accent); text-decoration: none; }
+    .q-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      display: inline-block;
+      text-align: center;
+    }
+    .q-tag.easy   { background: rgba(63,185,80,.15);  color: var(--green);  border: 1px solid rgba(63,185,80,.3); }
+    .q-tag.medium { background: rgba(210,153,34,.15); color: var(--orange); border: 1px solid rgba(210,153,34,.3); }
+    .q-tag.hard   { background: rgba(248,81,73,.15);  color: var(--red);    border: 1px solid rgba(248,81,73,.3); }
+
+    .q-platform {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Add question button / placeholder */
+    .add-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-top: 1px dashed var(--border);
+      background: rgba(88,166,255,.03);
+      color: var(--muted);
+      font-size: 13px;
+      font-family: var(--mono);
+      cursor: default;
+    }
+    .add-row svg { opacity: .4; }
+
+    /* ── HOW TO UPDATE (footer card) ─────────────────────── */
+    .update-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg2);
+      padding: 24px 24px 20px;
+      margin-top: 36px;
+    }
+    .update-card h3 {
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .update-card ol {
+      padding-left: 20px;
+      color: var(--muted);
+      font-size: 13.5px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .update-card ol li strong { color: var(--text); }
+    .code-inline {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--purple);
+    }
+
+    /* ── FOOTER ───────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 28px 16px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 16px;
+    }
+
+    /* ── RESPONSIVE ───────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .layout { padding: 16px; }
+      .q-row { grid-template-columns: 36px 1fr 72px; }
+      .q-platform { display: none; }
+      .topbar-search { display: none; }
+    }
+  </style>
 </head>
 <body>
-  <div id="app">Loading your DSA Journey...</div>
-  <script>
-    window.$docsify = {
-      name: 'DSA Progress Tracker',
-      repo: '', // Put your GitHub repo URL here
-      loadSidebar: true,
-      subMaxLevel: 2,
-      search: {
-        maxAge: 86400000,
-        paths: 'auto',
-        placeholder: 'Search questions...',
-        noData: 'No results found!'
-      }
+
+<!-- ─────────────── TOP BAR ─────────────── -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent)"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+    DSA Question Bank
+    <span class="cursor"></span>
+  </div>
+  <span class="topbar-badge">v1.0</span>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-search">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="searchInput" placeholder="Search questions…" oninput="filterQuestions(this.value)" />
+  </div>
+  <a href="https://github.com/" target="_blank" style="color:var(--muted);display:flex;align-items:center;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+  </a>
+</header>
+
+<!-- ─────────────── LAYOUT ─────────────── -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Topics</div>
+      <a href="#arrays"       class="sidebar-link active"><span class="dot" style="background:#58a6ff"></span>Arrays<span class="count" id="cnt-arrays">0</span></a>
+      <a href="#strings"      class="sidebar-link"><span class="dot" style="background:#3fb950"></span>Strings<span class="count" id="cnt-strings">0</span></a>
+      <a href="#linkedlist"   class="sidebar-link"><span class="dot" style="background:#d29922"></span>Linked Lists<span class="count" id="cnt-linkedlist">0</span></a>
+      <a href="#stacks"       class="sidebar-link"><span class="dot" style="background:#bc8cff"></span>Stacks &amp; Queues<span class="count" id="cnt-stacks">0</span></a>
+      <a href="#trees"        class="sidebar-link"><span class="dot" style="background:#f85149"></span>Trees<span class="count" id="cnt-trees">0</span></a>
+      <a href="#graphs"       class="sidebar-link"><span class="dot" style="background:#79c0ff"></span>Graphs<span class="count" id="cnt-graphs">0</span></a>
+      <a href="#sorting"      class="sidebar-link"><span class="dot" style="background:#e3b341"></span>Sorting<span class="count" id="cnt-sorting">0</span></a>
+      <a href="#dp"           class="sidebar-link"><span class="dot" style="background:#ff7b72"></span>Dynamic Programming<span class="count" id="cnt-dp">0</span></a>
+      <a href="#backtracking" class="sidebar-link"><span class="dot" style="background:#a5d6ff"></span>Backtracking<span class="count" id="cnt-backtracking">0</span></a>
+      <a href="#greedy"       class="sidebar-link"><span class="dot" style="background:#56d364"></span>Greedy<span class="count" id="cnt-greedy">0</span></a>
+      <a href="#heap"         class="sidebar-link"><span class="dot" style="background:#ffa657"></span>Heap / Priority Queue<span class="count" id="cnt-heap">0</span></a>
+      <a href="#hashing"      class="sidebar-link"><span class="dot" style="background:#d2a8ff"></span>Hashing<span class="count" id="cnt-hashing">0</span></a>
+      <a href="#bitsearch"    class="sidebar-link"><span class="dot" style="background:#89d185"></span>Binary Search<span class="count" id="cnt-bitsearch">0</span></a>
+      <a href="#math"         class="sidebar-link"><span class="dot" style="background:#cae8ff"></span>Math &amp; Number Theory<span class="count" id="cnt-math">0</span></a>
+    </div>
+
+    <div class="sidebar-stats" id="sidebarStats">
+      <h4>Progress</h4>
+      <div class="stat-row"><span class="label">Total</span><span class="val total" id="st-total">0</span></div>
+      <div class="stat-row"><span class="label">Easy</span><span class="val easy" id="st-easy">0</span></div>
+      <div class="stat-row"><span class="label">Medium</span><span class="val medium" id="st-medium">0</span></div>
+      <div class="stat-row"><span class="label">Hard</span><span class="val hard" id="st-hard">0</span></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">// Esh's personal DSA repository</div>
+      <h1>DSA <em>Question Bank</em></h1>
+      <p>A curated, growing collection of Data Structures &amp; Algorithms problems — organized by topic, tagged by difficulty, and updated regularly.</p>
+      <div class="hero-chips" id="heroChips"></div>
+    </div>
+
+    <!-- SECTIONS rendered by JS -->
+    <div id="sections"></div>
+
+    <!-- HOW TO UPDATE -->
+    <div class="update-card">
+      <h3>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        How to add questions
+      </h3>
+      <ol>
+        <li>Open <strong>index.html</strong> in your editor.</li>
+        <li>Scroll to the <span class="code-inline">DATA</span> block near the bottom of the <span class="code-inline">&lt;script&gt;</span> tag.</li>
+        <li>Find the section you want (e.g., <span class="code-inline">arrays</span>) and add a new object: <span class="code-inline">{ num: "...", name: "...", difficulty: "easy|medium|hard", platform: "LC|GFG|CF|..." }</span></li>
+        <li>Save and push to GitHub — GitHub Pages will update automatically.</li>
+      </ol>
+    </div>
+
+  </main>
+</div>
+
+<footer>Built with ❤️ by Esh &nbsp;·&nbsp; Updated regularly &nbsp;·&nbsp; <a href="https://github.com/" target="_blank">View on GitHub</a></footer>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   DATA — Edit this section to add/remove questions
+═══════════════════════════════════════════════════ */
+const DATA = {
+  arrays: {
+    label: "Arrays",
+    icon: "[ ]",
+    color: "#58a6ff",
+    bg: "rgba(88,166,255,.12)",
+    questions: [
+      { num: "1",   name: "Two Sum",                           difficulty: "easy",   platform: "LC #1",    link: "https://leetcode.com/problems/two-sum/" },
+      { num: "2",   name: "Best Time to Buy and Sell Stock",   difficulty: "easy",   platform: "LC #121",  link: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/" },
+      { num: "3",   name: "Maximum Subarray (Kadane's)",       difficulty: "medium", platform: "LC #53",   link: "https://leetcode.com/problems/maximum-subarray/" },
+      { num: "4",   name: "Product of Array Except Self",      difficulty: "medium", platform: "LC #238",  link: "https://leetcode.com/problems/product-of-array-except-self/" },
+      { num: "5",   name: "Trapping Rain Water",               difficulty: "hard",   platform: "LC #42",   link: "https://leetcode.com/problems/trapping-rain-water/" },
+    ]
+  },
+  strings: {
+    label: "Strings",
+    icon: "\"\"",
+    color: "#3fb950",
+    bg: "rgba(63,185,80,.12)",
+    questions: [
+      { num: "1",   name: "Valid Anagram",                     difficulty: "easy",   platform: "LC #242",  link: "https://leetcode.com/problems/valid-anagram/" },
+      { num: "2",   name: "Longest Substring Without Repeating", difficulty: "medium", platform: "LC #3",  link: "https://leetcode.com/problems/longest-substring-without-repeating-characters/" },
+      { num: "3",   name: "Longest Palindromic Substring",     difficulty: "medium", platform: "LC #5",    link: "https://leetcode.com/problems/longest-palindromic-substring/" },
+    ]
+  },
+  linkedlist: {
+    label: "Linked Lists",
+    icon: "→→",
+    color: "#d29922",
+    bg: "rgba(210,153,34,.12)",
+    questions: [
+      { num: "1",   name: "Reverse a Linked List",             difficulty: "easy",   platform: "LC #206",  link: "https://leetcode.com/problems/reverse-linked-list/" },
+      { num: "2",   name: "Merge Two Sorted Lists",            difficulty: "easy",   platform: "LC #21",   link: "https://leetcode.com/problems/merge-two-sorted-lists/" },
+      { num: "3",   name: "Detect Cycle in Linked List",       difficulty: "medium", platform: "LC #142",  link: "https://leetcode.com/problems/linked-list-cycle-ii/" },
+      { num: "4",   name: "LRU Cache",                         difficulty: "hard",   platform: "LC #146",  link: "https://leetcode.com/problems/lru-cache/" },
+    ]
+  },
+  stacks: {
+    label: "Stacks & Queues",
+    icon: "⊞⊟",
+    color: "#bc8cff",
+    bg: "rgba(188,140,255,.12)",
+    questions: [
+      { num: "1",   name: "Valid Parentheses",                 difficulty: "easy",   platform: "LC #20",   link: "https://leetcode.com/problems/valid-parentheses/" },
+      { num: "2",   name: "Min Stack",                         difficulty: "medium", platform: "LC #155",  link: "https://leetcode.com/problems/min-stack/" },
+      { num: "3",   name: "Largest Rectangle in Histogram",    difficulty: "hard",   platform: "LC #84",   link: "https://leetcode.com/problems/largest-rectangle-in-histogram/" },
+    ]
+  },
+  trees: {
+    label: "Trees",
+    icon: "⌥⌥",
+    color: "#f85149",
+    bg: "rgba(248,81,73,.12)",
+    questions: [
+      { num: "1",   name: "Maximum Depth of Binary Tree",      difficulty: "easy",   platform: "LC #104",  link: "https://leetcode.com/problems/maximum-depth-of-binary-tree/" },
+      { num: "2",   name: "Binary Tree Level Order Traversal", difficulty: "medium", platform: "LC #102",  link: "https://leetcode.com/problems/binary-tree-level-order-traversal/" },
+      { num: "3",   name: "Serialize and Deserialize Binary Tree", difficulty: "hard", platform: "LC #297", link: "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/" },
+    ]
+  },
+  graphs: {
+    label: "Graphs",
+    icon: "◉◉",
+    color: "#79c0ff",
+    bg: "rgba(121,192,255,.12)",
+    questions: [
+      { num: "1",   name: "Number of Islands",                 difficulty: "medium", platform: "LC #200",  link: "https://leetcode.com/problems/number-of-islands/" },
+      { num: "2",   name: "Clone Graph",                       difficulty: "medium", platform: "LC #133",  link: "https://leetcode.com/problems/clone-graph/" },
+      { num: "3",   name: "Course Schedule (Topological Sort)", difficulty: "medium", platform: "LC #207", link: "https://leetcode.com/problems/course-schedule/" },
+      { num: "4",   name: "Shortest Path in Binary Matrix",    difficulty: "medium", platform: "LC #1091", link: "https://leetcode.com/problems/shortest-path-in-binary-matrix/" },
+    ]
+  },
+  sorting: {
+    label: "Sorting",
+    icon: "↑↓",
+    color: "#e3b341",
+    bg: "rgba(227,179,65,.12)",
+    questions: [
+      { num: "1",   name: "Merge Sort Implementation",         difficulty: "medium", platform: "GFG",      link: "https://www.geeksforgeeks.org/merge-sort/" },
+      { num: "2",   name: "Quick Sort Implementation",         difficulty: "medium", platform: "GFG",      link: "https://www.geeksforgeeks.org/quick-sort/" },
+      { num: "3",   name: "Sort Colors (Dutch Flag Problem)",  difficulty: "medium", platform: "LC #75",   link: "https://leetcode.com/problems/sort-colors/" },
+    ]
+  },
+  dp: {
+    label: "Dynamic Programming",
+    icon: "∑∑",
+    color: "#ff7b72",
+    bg: "rgba(255,123,114,.12)",
+    questions: [
+      { num: "1",   name: "Climbing Stairs",                   difficulty: "easy",   platform: "LC #70",   link: "https://leetcode.com/problems/climbing-stairs/" },
+      { num: "2",   name: "Coin Change",                       difficulty: "medium", platform: "LC #322",  link: "https://leetcode.com/problems/coin-change/" },
+      { num: "3",   name: "Longest Common Subsequence",        difficulty: "medium", platform: "LC #1143", link: "https://leetcode.com/problems/longest-common-subsequence/" },
+      { num: "4",   name: "0/1 Knapsack Problem",              difficulty: "medium", platform: "GFG",      link: "https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/" },
+      { num: "5",   name: "Edit Distance",                     difficulty: "hard",   platform: "LC #72",   link: "https://leetcode.com/problems/edit-distance/" },
+    ]
+  },
+  backtracking: {
+    label: "Backtracking",
+    icon: "↩↩",
+    color: "#a5d6ff",
+    bg: "rgba(165,214,255,.10)",
+    questions: [
+      { num: "1",   name: "N-Queens",                          difficulty: "hard",   platform: "LC #51",   link: "https://leetcode.com/problems/n-queens/" },
+      { num: "2",   name: "Subsets",                           difficulty: "medium", platform: "LC #78",   link: "https://leetcode.com/problems/subsets/" },
+      { num: "3",   name: "Sudoku Solver",                     difficulty: "hard",   platform: "LC #37",   link: "https://leetcode.com/problems/sudoku-solver/" },
+    ]
+  },
+  greedy: {
+    label: "Greedy",
+    icon: "✦✦",
+    color: "#56d364",
+    bg: "rgba(86,211,100,.12)",
+    questions: [
+      { num: "1",   name: "Jump Game",                         difficulty: "medium", platform: "LC #55",   link: "https://leetcode.com/problems/jump-game/" },
+      { num: "2",   name: "Interval Scheduling (Merge Intervals)", difficulty: "medium", platform: "LC #56", link: "https://leetcode.com/problems/merge-intervals/" },
+      { num: "3",   name: "Activity Selection Problem",        difficulty: "medium", platform: "GFG",      link: "https://www.geeksforgeeks.org/activity-selection-problem-greedy-algo-1/" },
+    ]
+  },
+  heap: {
+    label: "Heap / Priority Queue",
+    icon: "△△",
+    color: "#ffa657",
+    bg: "rgba(255,166,87,.12)",
+    questions: [
+      { num: "1",   name: "Kth Largest Element in an Array",   difficulty: "medium", platform: "LC #215",  link: "https://leetcode.com/problems/kth-largest-element-in-an-array/" },
+      { num: "2",   name: "Top K Frequent Elements",           difficulty: "medium", platform: "LC #347",  link: "https://leetcode.com/problems/top-k-frequent-elements/" },
+      { num: "3",   name: "Merge K Sorted Lists",              difficulty: "hard",   platform: "LC #23",   link: "https://leetcode.com/problems/merge-k-sorted-lists/" },
+    ]
+  },
+  hashing: {
+    label: "Hashing",
+    icon: "##",
+    color: "#d2a8ff",
+    bg: "rgba(210,168,255,.12)",
+    questions: [
+      { num: "1",   name: "Group Anagrams",                    difficulty: "medium", platform: "LC #49",   link: "https://leetcode.com/problems/group-anagrams/" },
+      { num: "2",   name: "Longest Consecutive Sequence",      difficulty: "medium", platform: "LC #128",  link: "https://leetcode.com/problems/longest-consecutive-sequence/" },
+    ]
+  },
+  bitsearch: {
+    label: "Binary Search",
+    icon: "⊕⊕",
+    color: "#89d185",
+    bg: "rgba(137,209,133,.12)",
+    questions: [
+      { num: "1",   name: "Binary Search",                     difficulty: "easy",   platform: "LC #704",  link: "https://leetcode.com/problems/binary-search/" },
+      { num: "2",   name: "Search in Rotated Sorted Array",    difficulty: "medium", platform: "LC #33",   link: "https://leetcode.com/problems/search-in-rotated-sorted-array/" },
+      { num: "3",   name: "Median of Two Sorted Arrays",       difficulty: "hard",   platform: "LC #4",    link: "https://leetcode.com/problems/median-of-two-sorted-arrays/" },
+    ]
+  },
+  math: {
+    label: "Math & Number Theory",
+    icon: "∞π",
+    color: "#cae8ff",
+    bg: "rgba(202,232,255,.10)",
+    questions: [
+      { num: "1",   name: "Sieve of Eratosthenes",             difficulty: "medium", platform: "GFG",      link: "https://www.geeksforgeeks.org/sieve-of-eratosthenes/" },
+      { num: "2",   name: "Count Primes",                      difficulty: "medium", platform: "LC #204",  link: "https://leetcode.com/problems/count-primes/" },
+      { num: "3",   name: "Power(x, n) Fast Exponentiation",   difficulty: "medium", platform: "LC #50",   link: "https://leetcode.com/problems/powx-n/" },
+    ]
+  },
+};
+
+/* ═══════════════════════════════════════════════════
+   RENDER ENGINE — No need to edit below this line
+═══════════════════════════════════════════════════ */
+function buildSections(filter = "") {
+  const container = document.getElementById("sections");
+  container.innerHTML = "";
+
+  let totalE = 0, totalM = 0, totalH = 0;
+
+  for (const [key, sec] of Object.entries(DATA)) {
+    const qs = filter
+      ? sec.questions.filter(q => q.name.toLowerCase().includes(filter.toLowerCase()))
+      : sec.questions;
+
+    // update sidebar count
+    const cnt = document.getElementById("cnt-" + key);
+    if (cnt) cnt.textContent = qs.length;
+
+    if (qs.length === 0 && filter) continue;
+
+    totalE += qs.filter(q => q.difficulty === "easy").length;
+    totalM += qs.filter(q => q.difficulty === "medium").length;
+    totalH += qs.filter(q => q.difficulty === "hard").length;
+
+    const block = document.createElement("div");
+    block.className = "section-block";
+    block.id = key;
+
+    const rows = qs.map((q, i) => `
+      <div class="q-row">
+        <span class="q-num">${(i + 1).toString().padStart(2, "0")}</span>
+        <span class="q-name">${q.link ? `<a href="${q.link}" target="_blank">${q.name}</a>` : q.name}</span>
+        <span><span class="q-tag ${q.difficulty}">${q.difficulty}</span></span>
+        <span class="q-platform">${q.platform || ""}</span>
+      </div>
+    `).join("");
+
+    block.innerHTML = `
+      <div class="section-header">
+        <div class="section-icon" style="background:${sec.bg};color:${sec.color};font-family:var(--mono);font-size:12px;font-weight:700;">${sec.icon}</div>
+        <span class="section-title" style="color:${sec.color}">${sec.label}</span>
+        <span class="section-count">${qs.length} questions</span>
+      </div>
+      <div class="q-table">
+        <div class="q-row header">
+          <span>#</span><span>Question</span><span>Difficulty</span><span>Source</span>
+        </div>
+        ${rows}
+        <div class="add-row">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add more ${sec.label} questions in the DATA block
+        </div>
+      </div>
+    `;
+    container.appendChild(block);
+  }
+
+  // Update stats
+  const total = totalE + totalM + totalH;
+  document.getElementById("st-total").textContent  = total;
+  document.getElementById("st-easy").textContent   = totalE;
+  document.getElementById("st-medium").textContent = totalM;
+  document.getElementById("st-hard").textContent   = totalH;
+
+  // Hero chips
+  const chips = document.getElementById("heroChips");
+  if (chips && !filter) {
+    chips.innerHTML = `
+      <span class="chip" style="color:#3fb950;border-color:rgba(63,185,80,.3)">✓ ${totalE} Easy</span>
+      <span class="chip" style="color:#d29922;border-color:rgba(210,153,34,.3)">◎ ${totalM} Medium</span>
+      <span class="chip" style="color:#f85149;border-color:rgba(248,81,73,.3)">⚡ ${totalH} Hard</span>
+      <span class="chip" style="color:#58a6ff;border-color:rgba(88,166,255,.3)">${Object.keys(DATA).length} Topics</span>
+    `;
+  }
+}
+
+function filterQuestions(val) { buildSections(val.trim()); }
+
+// Sidebar active highlight on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll(".sidebar-link").forEach(l => l.classList.remove("active"));
+      const id = entry.target.id;
+      const link = document.querySelector(`.sidebar-link[href="#${id}"]`);
+      if (link) link.classList.add("active");
     }
-  </script>
-  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+  });
+}, { rootMargin: "-60px 0px -70% 0px" });
+
+buildSections();
+document.querySelectorAll(".section-block").forEach(b => observer.observe(b));
+</script>
 </body>
 </html>
