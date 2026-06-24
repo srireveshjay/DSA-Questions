@@ -583,29 +583,11 @@ def levelOrder(root):
     label: "Sorting", icon: "↑↓", color: "#e3b341", bg: "rgba(227,179,65,.13)",
     questions: [
       {
-        num: "1", name: "Sort Colors (Dutch National Flag)", difficulty: "medium", platform: "LC #75",
-        problem: "Given an array <code>nums</code> with <code>n</code> objects coloured red (0), white (1), or blue (2), sort them <strong>in-place</strong> so that objects of the same colour are adjacent in the order 0, 1, 2.",
+        num: "1", name: "Symmetric Difference", difficulty: "easy",
+        problem: "1. Given two sets A and B represented as sorted sequences, describe an efficient algorithm for computing A⊕B, which is the set of elements that are in A or B, but not in both. Ensure that you analyze the asymptotic time complexity of your algorithm and justify why it is efficient.",
         examples: [
-          { input: "nums = [2,0,2,1,1,0]", output: "[0,0,1,1,2,2]", explanation: "" }
-        ],
-        constraints: ["n == nums.length", "1 ≤ n ≤ 300", "nums[i] is 0, 1, or 2"],
-        approach: { title: "Dutch National Flag — Three Pointers", time: "O(n)", space: "O(1)",
-          steps: ["Maintain low (boundary of 0s), mid (current), high (boundary of 2s).", "nums[mid]=0 → swap with low, advance both. nums[mid]=2 → swap with high, retreat high. nums[mid]=1 → advance mid."] },
-        code: `def sortColors(nums):
-    low = mid = 0
-    high = len(nums) - 1
-    while mid <= high:
-        if nums[mid] == 0:
-            nums[low], nums[mid] = nums[mid], nums[low]
-            low += 1; mid += 1
-        elif nums[mid] == 2:
-            nums[mid], nums[high] = nums[high], nums[mid]
-            high -= 1
-        else:
-            mid += 1`
-      }
-    ]
-  },
+          { input: "A = [1,3,4,5,6,7], B = [1,2,3,4,5]", output: "[2,6,7]",}
+        ]  },
 
   dp: {
     label: "Dynamic Programming", icon: "∑∑", color: "#ff7b72", bg: "rgba(255,123,114,.13)",
