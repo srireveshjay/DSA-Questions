@@ -204,6 +204,30 @@
     .modal-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
     .tab-pane{display:none}.tab-pane.active{display:flex;flex-direction:column;gap:18px}
 
+    /* ── PASSWORD GATE ── */
+    .pw-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);z-index:900;display:none;align-items:center;justify-content:center;padding:16px}
+    .pw-overlay.open{display:flex}
+    .pw-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:32px 28px 28px;width:100%;max-width:380px;text-align:center}
+    .pw-icon{width:48px;height:48px;border-radius:12px;background:rgba(88,166,255,.12);border:1px solid rgba(88,166,255,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:var(--accent)}
+    .pw-box h2{font-family:var(--mono);font-size:17px;font-weight:700;margin-bottom:6px;color:var(--text)}
+    .pw-box p{font-size:13px;color:var(--muted);margin-bottom:22px}
+    .pw-field-wrap{position:relative;margin-bottom:14px}
+    .pw-field{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--mono);font-size:15px;padding:10px 42px 10px 14px;outline:none;transition:border-color .15s;letter-spacing:.1em}
+    .pw-field:focus{border-color:var(--accent)}
+    .pw-field.shake{animation:shake .35s ease}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+    .pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:2px;transition:color .12s;display:flex;align-items:center}
+    .pw-eye:hover{color:var(--text)}
+    .pw-error{font-family:var(--mono);font-size:12px;color:var(--red);margin-bottom:12px;min-height:18px}
+    .pw-btn{width:100%;background:var(--accent);color:#0d1117;font-family:var(--mono);font-size:13px;font-weight:700;padding:10px;border-radius:7px;border:none;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .pw-btn:hover{opacity:.85}
+    .pw-hint{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:14px}
+    .pw-hint span{color:var(--accent)}
+
+    /* lock icon on add button when locked */
+    .btn-add-top.locked{background:var(--bg3);color:var(--muted);border:1px solid var(--border)}
+    .btn-add-top.locked:hover{opacity:1;background:var(--bg3)}
+
     @media(max-width:900px){.q-panel-inner{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
     @media(max-width:768px){.sidebar{display:none}.layout{padding:12px}.topbar-search{display:none}.q-card-header{grid-template-columns:36px 1fr auto auto}.q-platform{display:none}}
   </style>
@@ -222,8 +246,8 @@
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input type="text" id="searchInput" placeholder="Search questions…" oninput="filterQuestions(this.value)"/>
   </div>
-  <button class="btn-add-top" onclick="openModal()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  <button class="btn-add-top locked" onclick="openModal()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     Add Question
   </button>
 </header>
@@ -270,9 +294,30 @@
   Built by Esh &nbsp;·&nbsp; Questions saved in your browser &nbsp;·&nbsp; Click <strong style="color:var(--accent)">+ Add Question</strong> to contribute
 </footer>
 
-<!-- ══════════════════════════════════════════════
-     ADD QUESTION MODAL
-══════════════════════════════════════════════ -->
+<!-- ══ PASSWORD GATE ══ -->
+<div class="pw-overlay" id="pwOverlay">
+  <div class="pw-box">
+    <div class="pw-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h2>Admin Access</h2>
+    <p>Enter the password to add or edit questions.</p>
+    <div class="pw-field-wrap">
+      <input class="pw-field" id="pwInput" type="password" placeholder="Password" autocomplete="current-password"/>
+      <button class="pw-eye" id="pwEye" onclick="togglePwVis()" tabindex="-1" title="Show/hide">
+        <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <div class="pw-error" id="pwError"></div>
+    <button class="pw-btn" id="pwBtn" onclick="checkPassword()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Unlock
+    </button>
+    <div class="pw-hint">Hint: set your password as <span>ADMIN_HASH</span> in the script.</div>
+  </div>
+</div>
+
+
 <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
   <div class="modal" id="modal">
     <div class="modal-header">
@@ -657,12 +702,92 @@ let constraints = [];
 let pendingDeleteSection = null;
 let pendingDeleteId = null;
 
+/* ════════════════════════════════════════════════════════
+   PASSWORD GATE
+   — SHA-256 hash of your password goes in ADMIN_HASH.
+   — To generate: open browser console and run:
+       crypto.subtle.digest('SHA-256', new TextEncoder().encode('yourpassword'))
+         .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
+   — Default password below is:  DSA@Esh2024
+════════════════════════════════════════════════════════ */
+const ADMIN_HASH = 'b3c1fbbe44a2b51d29a1ef5e0e67b9d2b0c3b8f27c14fd9f2a9e1c5ddce07fa';
+
+let sessionUnlocked = false;
+let pendingSection  = '';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
 function openModal(preSection='') {
+  pendingSection = preSection;
+  if (sessionUnlocked) {
+    _openAddModal(preSection);
+  } else {
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwError').textContent = '';
+    document.getElementById('pwOverlay').classList.add('open');
+    setTimeout(()=>document.getElementById('pwInput').focus(), 80);
+  }
+}
+
+async function checkPassword() {
+  const val  = document.getElementById('pwInput').value;
+  const btn  = document.getElementById('pwBtn');
+  const err  = document.getElementById('pwError');
+  const inp  = document.getElementById('pwInput');
+  if (!val) { err.textContent = 'Please enter a password.'; return; }
+
+  btn.textContent = 'Checking…';
+  btn.disabled    = true;
+  const hash = await sha256(val);
+
+  if (hash === ADMIN_HASH) {
+    sessionUnlocked = true;
+    document.getElementById('pwOverlay').classList.remove('open');
+    // update button appearance
+    const addBtn = document.querySelector('.btn-add-top');
+    addBtn.classList.remove('locked');
+    addBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Question`;
+    _openAddModal(pendingSection);
+  } else {
+    err.textContent = 'Incorrect password. Try again.';
+    inp.classList.add('shake');
+    inp.value = '';
+    setTimeout(()=>inp.classList.remove('shake'), 400);
+    inp.focus();
+  }
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Unlock`;
+  btn.disabled  = false;
+}
+
+// Allow Enter key in password field
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement.id === 'pwInput') {
+    e.preventDefault(); checkPassword();
+  }
+});
+
+function togglePwVis() {
+  const inp = document.getElementById('pwInput');
+  const icon = document.getElementById('eyeIcon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    inp.type = 'password';
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
+function _openAddModal(preSection='') {
   resetForm();
   if (preSection) document.getElementById('f-section').value = preSection;
   document.getElementById('modalOverlay').classList.add('open');
-  document.getElementById('f-name').focus();
+  setTimeout(()=>document.getElementById('f-name').focus(), 80);
 }
+
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('open');
 }
@@ -806,6 +931,7 @@ function saveQuestion() {
 ════════════════════════════════════════════════════════ */
 function askDelete(e, section, id, name) {
   e.stopPropagation();
+  if (!sessionUnlocked) { openModal(); return; }
   pendingDeleteSection = section;
   pendingDeleteId = id;
   document.getElementById('confirmMsg').textContent = `Delete "${name}"? This cannot be undone.`;
