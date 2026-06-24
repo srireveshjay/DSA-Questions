@@ -588,6 +588,14 @@ def levelOrder(root):
         examples: [
           { input: "A = [1,3,4,5,6,7], B = [1,2,3,4,5]", output: "[2,6,7]",}
         ],
+        constraints: ["1 ≤ n ≤ 45"],
+        approach: { title: "DP — Fibonacci pattern", time: "O(n)", space: "O(1)",
+          steps: ["dp[i] = dp[i-1] + dp[i-2].", "Keep only last two values (constant space)."] },
+        code: `def climbStairs(n):
+    a, b = 1, 1
+    for _ in range(n - 1):
+        a, b = b, a + b
+    return b`
         ]
       },
 
